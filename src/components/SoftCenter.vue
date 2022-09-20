@@ -1,13 +1,18 @@
 <template>
   <div class="edit">
-    <el-row :gutter="20" style="margin:0;">
-      <el-col :span="12" :offset="6" style="padding-left:0;padding-right:0;">
+    <el-row :gutter="24" style="margin:0;">
+      <el-col :xl="{span:12, offset:6}" :lg="{span:18, offset:3}" :md="{span:20, offset:2}" :sm="{span:20, offset:2}" :xs="{span:24, offset:0}" style="padding-left:0;padding-right:0;">
         <Nav></Nav>
         <div class="title">
           <h4>应用中心</h4>
         </div>
         <div class="content">
-          
+          <div class="box" @click="edit()">
+            <div class="create">
+              <i class="el-icon-edit"></i>
+            </div>
+          </div>
+          <div class="clear"></div>
         </div>
       </el-col>
     </el-row>
@@ -35,9 +40,12 @@ export default {
 }
 .el-row {
   margin-bottom: 20px;
+  height:100%;
 }
 .el-col {
   height:100%;
+  border-radius: 4px;
+  background: rgb(215, 224, 228);
 }
 .title {
   height: 70px;
@@ -52,7 +60,37 @@ export default {
 .content {
   width:100%;
   height:auto;
-  margin-top:20px;
-  border: 1px rgb(201, 200, 200) solid;
+}
+
+.box {
+  width: 124px;
+  height: 150px;
+  background: rgb(255, 255, 255);
+  border-radius: 10px;
+  box-shadow: 0 0 3px 0 #5f7cb6;
+  margin: 20px 20px 0;
+  float: left;
+}
+.box:hover{
+  box-shadow: 0 0 3px 0 #cdd5e2;
+  cursor: pointer;
+}
+.create {
+  width:50px;
+  height:50px;
+  margin: 50px auto;
+  line-height: 50px;
+  font-size: 20px;
+  color: rgb(43, 184, 66);
+  /* border: 1px red solid; */
+}
+.create span {
+  font-size: 14px;
+  letter-spacing: 3px;
+  font-weight: 600;
+  color: #303133;
+}
+.clear{
+  clear: both;
 }
 </style>

@@ -1,21 +1,21 @@
 <template>
   <div class="edit">
-    <el-row :gutter="20" style="margin:0;">
-      <el-col :span="12" :offset="6" style="padding-left:0;padding-right:0;">
+    <el-row :gutter="24" style="margin:0;">
+      <el-col :xl="{span:12, offset:6}" :lg="{span:18, offset:3}" :md="{span:20, offset:2}" :sm="{span:20, offset:2}" :xs="{span:24, offset:0}" style="padding-left:0;padding-right:0;">
         <Nav></Nav>
         <div class="title">
           <h4>个人账户</h4>
         </div>
         <div class="content">
           <div class="block">
-            <el-descriptions title="基本信息" direction="vertical" :column="4" border>
-              <el-descriptions-item label="用户名">kooriookami</el-descriptions-item>
-              <el-descriptions-item label="手机号">18100000000</el-descriptions-item>
-              <el-descriptions-item label="居住地" :span="2">苏州市</el-descriptions-item>
+            <el-descriptions title="基本信息" :column="4" border>
+              <el-descriptions-item label="用户名">{{username}}</el-descriptions-item>
+              <el-descriptions-item label="手机号">xxxxxxxxx</el-descriptions-item>
+              <el-descriptions-item label="居住地" :span="2">xxxxxxxxx</el-descriptions-item>
               <el-descriptions-item label="备注">
                 <el-tag size="small">学校</el-tag>
               </el-descriptions-item>
-              <el-descriptions-item label="联系地址">江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item>
+              <el-descriptions-item label="联系地址">xxxxxxxxx</el-descriptions-item>
             </el-descriptions>
           </div>
         </div>
@@ -31,9 +31,14 @@ export default {
   name: 'User',
   data() {
     return {
-      
+      username:"",
+      border:true
     }
+  },
+  created() {
+    this.username = this.$util.getUserName()
   }
+
 }
 </script>
 
@@ -64,9 +69,11 @@ export default {
   height:auto;
   margin-top:20px;
   border: 1px rgb(201, 200, 200) solid;
+  background: rgb(215, 209, 209);
 }
 .block {
-  width:60%;
+  width:auto;
+  padding:0px 10px;
   margin:50px auto;
   text-align: left;
 }

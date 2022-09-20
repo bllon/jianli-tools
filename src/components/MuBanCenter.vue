@@ -1,7 +1,7 @@
 <template>
   <div class="edit">
-    <el-row :gutter="20" style="margin:0;">
-      <el-col :span="12" :offset="6" style="padding-left:0;padding-right:0;">
+    <el-row :gutter="24" style="margin:0;">
+      <el-col :xl="{span:12, offset:6}" :lg="{span:18, offset:3}" :md="{span:20, offset:2}" :sm="{span:20, offset:2}" :xs="{span:24, offset:0}" style="padding-left:0;padding-right:0;">
         <Nav></Nav>
         <div class="title">
           <h4>模板中心</h4>
@@ -9,6 +9,7 @@
         <div class="content">
           <div class="box" v-for="(item,index) in list" :key="index" @click="edit(item.temp_id)">
             <h5 class="muban_name">{{item.name}}</h5>
+            <p style="font-size:12px;padding:5px 0;margin-top:10px;">创建人: {{item.creator}}</p>
             <p style="font-size:12px;padding:5px 0;margin-top:10px;">{{item.update_time.substr(0,10)}}</p>
             <!-- <div class="create">
               <el-button type="info" icon="el-icon-edit" circle @click="edit(item.id)"></el-button>
@@ -45,6 +46,15 @@ export default {
         });
         return
       }
+
+      if (this.$store.state.network == false) {
+        this.$notify.error({
+          title: '错误',
+          message: '连接服务器异常,请联系管理员'
+        });
+        return
+      }
+
       if (id == undefined) {
         this.$router.push('/resume/template/edit')
       } else {
@@ -53,6 +63,11 @@ export default {
     }
   },
   created() {
+    //未登录不请求
+    if (this.$util.getUserName() == "") {
+      return
+    }
+    
     var that = this;
     // 发送axios请求
     this.axios({
@@ -117,12 +132,6 @@ export default {
 .muban_name {
   height:30px;
   line-height: 30px;
-}
-.jindu{
-  width:60px;
-  height:60px;
-  margin:0 auto;
-  font-size: 12px;
 }
 .create {
   width:50px;

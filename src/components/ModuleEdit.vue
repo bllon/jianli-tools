@@ -2,7 +2,7 @@
   <div class="box">
     <h3 class="title">{{ModuleData.module_name}}</h3>
     <div class="form">
-      <el-form v-if="ModuleData.type == 0" :inline="true" :model="ModuleData" class="module_form">
+      <el-form v-if="ModuleData.type == 0" :inline="true" :model="ModuleData" :ref="refName" class="module_form">
         <div :class="item.type == 'textarea' || item.type == 'date-group'? 'module_block' : 'module_item'" v-for="(item,index) in ModuleData.form" :key="index">
 
           <!-- input -->
@@ -20,18 +20,18 @@
           <!-- date -->
           <el-form-item :label="item.label" :prop="item.name"  v-if="item.type == 'date'">
             <el-col :span="11">
-              <el-date-picker type="date" v-model="item.value"></el-date-picker>
+              <el-date-picker type="date" v-model="item.value" @change="pickDate($event, item)"></el-date-picker>
             </el-col>
           </el-form-item>
 
           <!-- date -->
           <el-form-item :label="item.label" :prop="item.name1"  v-if="item.type == 'date-group'">
             <el-col :span="11">
-              <el-date-picker type="date" v-model="item.value1" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="date" v-model="item.value1" style="width: 100%;" @change="pickDate($event, item, 1)"></el-date-picker>
             </el-col>
             <el-col class="line" :span="2" style="text-align:center;">-</el-col>
             <el-col :span="11">
-              <el-date-picker type="date" v-model="item.value2" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="date" v-model="item.value2" style="width: 100%;" @change="pickDate($event, item, 2)"></el-date-picker>
             </el-col>
           </el-form-item>
 
@@ -46,29 +46,25 @@
       <!-- 列表模块类型 -->
       <div v-if="ModuleData.type == 1" class="list_module">
         <div class="list_form">
-          <!-- <div class="box"  v-for="(item,index) in WorkExperienceData" :key="index" @click="edit(index)">
-            <h4 class="name">{{item.company_name}} </h4>
-            <div class="icon"><i class="el-icon-arrow-right"></i></div>
-            <h4 class="time">{{item.start_time}}-{{item.end_time}}</h4>
-          </div> -->
-          <el-descriptions v-for="k in [0,1]" :key="k" class="margin-top" style="margin-top:20px;" title="" :column="3" :size="size" border>
-            <el-descriptions-item v-for="(item,index) in ModuleData.form" :key="index">
-              <template slot="label">
-                <i class="el-icon-edit-outline"></i>
-                <span v-if="item.type != 'date-group'">{{item.label}}</span>
-                <span v-if="item.type == 'date-group'">{{item.label}}</span>
-              </template>
-              <span v-if="item.type != 'date-group' && item.type != 'date'">{{item.value}}</span>
-              <span v-if="item.type == 'date'">{{item.value | dateFormat}}</span>
-              <span v-if="item.type == 'date-group'">{{item.value1 | dateFormat}} <span v-if="item.value1 != null && item.value1 != '' && item.value2 != null && item.value2 != ''">-</span> {{item.value2 | dateFormat}}</span>
-            </el-descriptions-item>
-          </el-descriptions>
+          
+          <div class="list-item-box" v-for="(onelist,k) in ModuleData.list_data" :key="k" @click="edit(k)">
+            <el-descriptions class="margin-top" title="" :column="2" :size="size" :border="true">
+              <el-descriptions-item v-for="(item,index) in onelist" :key="index">
+                <template slot="label">
+                  <i class="el-icon-edit-outline"></i>
+                  <span>{{item.label}}</span>
+                </template>
+                <span>{{item.value}}</span>
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
+          
           <div style="margin:10px;">
             <el-button size="mini" type="success" @click="add()">添加</el-button>
           </div>
         </div>
         <el-dialog :title="ModuleData.module_name" @close="handleClose" :visible.sync="dialogFormVisible">
-          <el-form :inline="true" :model="ModuleData" ref="moduleForm">
+          <el-form :inline="true" :model="ModuleData" ref="listModuleForm">
             <div :class="item.type == 'textarea' || item.type == 'date-group'? 'module_block' : 'module_item'" v-for="(item,index) in ModuleData.form" :key="index">
 
               <!-- input -->
@@ -86,18 +82,18 @@
               <!-- date -->
               <el-form-item :label="item.label" :prop="item.name"  v-if="item.type == 'date'">
                 <el-col :span="11">
-                  <el-date-picker type="date" v-model="item.value"></el-date-picker>
+                  <el-date-picker type="date" v-model="item.value" @change="pickDate($event, item)"></el-date-picker>
                 </el-col>
               </el-form-item>
 
               <!-- date -->
               <el-form-item :label="item.label" :prop="item.name1"  v-if="item.type == 'date-group'">
                 <el-col :span="11">
-                  <el-date-picker type="date" v-model="item.value1" style="width: 100%;"></el-date-picker>
+                  <el-date-picker type="date" v-model="item.value1" style="width: 100%;" @change="pickDate($event, item, 1)"></el-date-picker>
                 </el-col>
                 <el-col class="line" :span="2" style="text-align:center;">-</el-col>
                 <el-col :span="11">
-                  <el-date-picker type="date" v-model="item.value2" style="width: 100%;"></el-date-picker>
+                  <el-date-picker type="date" v-model="item.value2" style="width: 100%;" @change="pickDate($event, item, 2)"></el-date-picker>
                 </el-col>
               </el-form-item>
 
@@ -109,7 +105,7 @@
             </div>
           </el-form>
           <div slot="footer" class="dialog-footer">
-            <!-- <el-button v-if="this.index!==''" type="danger" size="small" @click="beforeDel()">删除</el-button> -->
+            <el-button v-if="this.index!==''" type="danger" size="small" @click="beforeDel()">删除</el-button>
             <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
             <el-button size="small" type="primary" @click="save()">保存</el-button>
           </div>
@@ -120,23 +116,122 @@
 </template>
 
 <script>
+
 export default {
   name: 'ModuleEdit',
   props: ["refName","ModuleData"],
   data() {
     return {
-      size: '',
+      size: 'mini',
       dialogFormVisible: false,
+      list: [],
+      index:'',
+      is_add: false
     }
   },
   methods: {
     add() {
+      for (var i=0; i<this.ModuleData.form.length;i++) {
+        //重置表单
+        this.ModuleData.form[i].value = "";
+        this.ModuleData.form[i].value1 = "";
+        this.ModuleData.form[i].value2 = "";
+      }
       this.dialogFormVisible = true;
-      // this.is_add=true;
+      this.list = this.ModuleData.list_data != null ? this.ModuleData.list_data : [];
+      this.is_add=true;
     },
     handleClose() {
-      this.$refs['moduleForm'].resetFields();
+      this.$refs['listModuleForm'].resetFields();
+      this.index = ''
     },
+    pickDate(date, item, index) {
+      if (date == null) {
+        return
+      }
+      if (index == 1) {
+        item.value1 = this.$util.dateFormat(date)
+      } else if (index == 2) {
+        item.value2 = this.$util.dateFormat(date)
+      } else {
+        item.value = this.$util.dateFormat(date)
+      }
+    },
+    edit(index) {
+      this.list = this.ModuleData.list_data != null ? this.ModuleData.list_data : [];
+      this.index = index;
+      this.dialogFormVisible = true;
+      for(var i=0;i<this.ModuleData.list_data[index].length;i++) {
+        if (this.ModuleData.form[i].type == 'date-group') {
+          var arr = this.ModuleData.list_data[index][i].value.split(' - ')
+          this.ModuleData.form[i].value1 = arr[0] ? arr[0] : ''
+          this.ModuleData.form[i].value2 = arr[1] ? arr[1] : ''
+        } else {
+          this.ModuleData.form[i].value = this.ModuleData.list_data[index][i].value
+        }
+      }
+    },
+    save() {
+      if (this.is_add) {
+        var data = [];
+        for (var i=0; i<this.ModuleData.form.length;i++) {
+          if (this.ModuleData.form[i].type == 'date-group') {
+            data.push({
+              'type': this.ModuleData.form[i].type,
+              'label': this.ModuleData.form[i].label,
+              'value': this.ModuleData.form[i].value1 + " - " + this.ModuleData.form[i].value2
+            })
+          } else {
+            data.push({
+              'type': this.ModuleData.form[i].type,
+              'label': this.ModuleData.form[i].label,
+              'value': this.ModuleData.form[i].value
+            })
+          }
+          //重置表单
+          this.ModuleData.form[i].value = "";
+          this.ModuleData.form[i].value1 = "";
+          this.ModuleData.form[i].value2 = "";
+        }
+        this.list.push(data)
+      } else {
+        for (var i=0; i<this.ModuleData.form.length;i++) {
+          if (this.ModuleData.form[i].type == 'date-group') {
+            this.list[this.index][i].value = this.ModuleData.form[i].value1 + " - " + this.ModuleData.form[i].value2
+          } else {
+            this.list[this.index][i].value = this.ModuleData.form[i].value
+          }
+          //重置表单
+          this.ModuleData.form[i].value = "";
+          this.ModuleData.form[i].value1 = "";
+          this.ModuleData.form[i].value2 = "";
+        }
+      }
+      this.$emit('saveListData',[this.list, this.ModuleData.module_name])
+      this.dialogFormVisible = false;
+      this.is_add=false;
+    },
+    beforeDel() {
+      this.$confirm('将删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        lockScroll: false
+      }).then(() => {
+        this.del()
+      }).catch(() => {
+        console.log("取消了删除")
+      });
+    },
+    del() {
+      this.list.splice(this.index,1);
+      this.$emit('saveListData',[this.list, this.ModuleData.module_name])
+      this.dialogFormVisible = false;
+      this.index=''
+    }
+  },
+  created() {
+    
   }
 }
 </script>
@@ -148,6 +243,13 @@ export default {
   min-height:240px;
   height:auto;
   border-bottom: 1px rgb(168, 168, 168) solid;
+  background: rgb(232, 210, 210);
+}
+.list-item-box {
+  width:100%;
+  height:auto;
+  margin-top:10px;
+  cursor: pointer;
 }
 .title {
   width:150px;

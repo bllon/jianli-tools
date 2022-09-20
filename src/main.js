@@ -7,14 +7,28 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import store from './store'
+import md5 from 'js-md5'
+
+import intro from 'intro.js' // introjs库
+import 'intro.js/introjs.css' // introjs默认css样式
+// introjs还提供了多种主题，可以通过以下方式引入
+// import 'intro.js/themes/introjs-modern.css' // introjs主题
 
 import util from './utils/tool.js'
 Vue.prototype.$util = util
+Vue.prototype.$notify = this.$notify
+
+// 加到prototype中，直接通过vue实例就能调用intro了
+Vue.prototype.$intro = intro
+
+Vue.prototype.$md5 = md5;
 
 //解决el-dialog页面抖动问题
 ElementUI.Dialog.props.lockScroll.default = false;
 
 axios.defaults.withCredentials = true
+
 Vue.use(ElementUI)
 Vue.use(VueAxios,axios)
 
@@ -38,6 +52,7 @@ new Vue({
   el: '#app',
   router,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  store,
 })
 

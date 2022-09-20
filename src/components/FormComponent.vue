@@ -5,7 +5,9 @@
         @dragstart="handleDragStart($event, 'input')" 
         @dragover.prevent="handleDragOver($event, 'input')" 
         @dragenter="handleDragEnter($event, 'input')" 
-        @dragend="handleDragEnd($event, 'input')">
+        @dragend="handleDragEnd($event, 'input')"
+        @mouseover="mouseOver($event)"
+        @mouseleave="mouseLeave($event)">
         <el-form-item label="输入框">
           <el-input style="width: 80%;"></el-input>
         </el-form-item>
@@ -16,7 +18,9 @@
         @dragstart="handleDragStart($event, 'select')" 
         @dragover.prevent="handleDragOver($event, 'select')" 
         @dragenter="handleDragEnter($event, 'select')" 
-        @dragend="handleDragEnd($event, 'select')">
+        @dragend="handleDragEnd($event, 'select')"
+        @mouseover="mouseOver($event)"
+        @mouseleave="mouseLeave($event)">
         <el-form-item label="下拉菜单">
           <el-select v-model="sizeForm.region" placeholder="">
           </el-select>
@@ -28,7 +32,9 @@
         @dragstart="handleDragStart($event, 'date')" 
         @dragover.prevent="handleDragOver($event, 'date')" 
         @dragenter="handleDragEnter($event, 'date')" 
-        @dragend="handleDragEnd($event, 'date')">
+        @dragend="handleDragEnd($event, 'date')"
+        @mouseover="mouseOver($event)"
+        @mouseleave="mouseLeave($event)">
         <el-form-item label="日期">
           <el-col :span="11" style="padding-left:0;">
             <el-date-picker type="date" style="width: 100%;"></el-date-picker>
@@ -41,7 +47,9 @@
         @dragstart="handleDragStart($event, 'date-group')" 
         @dragover.prevent="handleDragOver($event, 'date-group')" 
         @dragenter="handleDragEnter($event, 'date-group')" 
-        @dragend="handleDragEnd($event, 'date-group')">
+        @dragend="handleDragEnd($event, 'date-group')"
+        @mouseover="mouseOver($event)"
+        @mouseleave="mouseLeave($event)">
         <el-form-item label="日期范围">
           <el-col :span="10" style="padding-left:0;padding-right:0;">
             <el-date-picker type="date" placeholder="" style="width: 100%;"></el-date-picker>
@@ -58,7 +66,9 @@
         @dragstart="handleDragStart($event, 'textarea')" 
         @dragover.prevent="handleDragOver($event, 'textarea')" 
         @dragenter="handleDragEnter($event, 'textarea')" 
-        @dragend="handleDragEnd($event, 'textarea')">
+        @dragend="handleDragEnd($event, 'textarea')"
+        @mouseover="mouseOver($event)"
+        @mouseleave="mouseLeave($event)">
         <el-form-item label="文本框">
           <el-input type="textarea" rows="3" resize="none" style="width: 80%;"></el-input>
         </el-form-item>
@@ -88,8 +98,14 @@ export default {
     };
   },
   methods: {
-    handleDragStart (e, index) {
+    mouseOver(e){
+      
+    },
+    mouseLeave(e){
 
+    },
+    handleDragStart (e, index) {
+      
     },
     handleDragEnd (e, index) {
       // this.$parent.addFormComponent(index,0);

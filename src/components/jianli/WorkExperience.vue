@@ -31,7 +31,7 @@
             </el-col>
           </el-form-item>
           <el-form-item label="工作内容" prop="job_content">
-            <el-input type="textarea" v-model="form.job_content" :rows="5" placeholder="" style="min-width:500px;"></el-input>
+            <el-input type="textarea" v-model="form.job_content" :rows="5" placeholder="" style="width: 100%;min-width:400px;"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">

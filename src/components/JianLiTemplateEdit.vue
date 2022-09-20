@@ -1,5 +1,5 @@
 <template>
-  <div class="edit">
+  <div class="edit" @dragover.prevent="handleDragOver($event)">
     <el-row :gutter="20" style="margin:0;">
       <el-col :span="5" :offset="0" style="padding-left:0;padding-right:0;position:relation;" class="form-pro">
         <div class="module_component">
@@ -28,7 +28,7 @@
         </div>
         <div class="oprate-right-box">
           <!-- 模块列表 -->
-          <div v-if="modules.length > 0" class="module_list">
+          <div class="module_list">
             <el-input v-model="name" placeholder="模板名称"></el-input>
             <div class="module" v-for="(app,index) in modules" :key="index">
               <div class="module-title" draggable="true"
@@ -129,7 +129,8 @@
           <div v-if="modules.length > 0" class="save">
             <el-button v-if="this.id != undefined" type="danger" size="small" @click="beforeDel()">删除</el-button>
             <el-button type="primary" size="small" @click="beforeSave()">保存</el-button>
-            <el-button type="success" size="small" @click="beforeExport()">导出模板</el-button>
+            <!-- <el-button type="success" size="small" @click="beforeExport()">导出模板</el-button> -->
+            <el-button v-if="this.id != undefined" type="success" size="small" @click="createJianLi()">创建简历</el-button>
           </div>
         </div>
       </el-col>
@@ -190,6 +191,7 @@ export default {
       modules:[
         {
           ref:"module1",
+          show:true,
           editVisible:false,
           removeVisible:false,
           type:0,
@@ -369,6 +371,14 @@ export default {
           });
         }
       });
+    },
+    createJianLi() {
+      this.$router.push({
+        path : '/resume_plus',
+        query: {
+          type : this.id
+        }
+      })
     },
     addModule() {
       let flag = null;

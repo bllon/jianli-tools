@@ -1,7 +1,13 @@
 <template>
 <!-- 项目经验组件 -->
   <div class="box">
-    <h3 class="title">项目经验</h3>
+    <div class="top">
+      <h3 class="title">项目经验</h3>
+      <div class="btn-box">
+          <el-button size="mini" type="primary" @click="sort()">按时间排序</el-button>
+      </div>
+    </div>
+    
     <div class="form">
       <div class="expirience">
         <div class="box"  v-for="(item,index) in ProjectExperienceData" :key="index" @click="edit(index)">
@@ -31,7 +37,7 @@
             </el-col>
           </el-form-item>
           <el-form-item label="项目描述" prop="project_content">
-            <el-input type="textarea" v-model="form.project_content" :rows="5" placeholder="" style="min-width:500px;"></el-input>
+            <el-input type="textarea" v-model="form.project_content" :rows="5" placeholder="" style="width: 100%;min-width:400px;"></el-input>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -127,6 +133,20 @@ export default {
       this.dialogFormVisible = true;
       this.is_add=true;
     },
+    sort() {
+      //按开始时间进行排序
+      for(var i=0;i<this.ProjectExperienceData.length;i++){
+        for(var j=0;j<this.ProjectExperienceData.length-1-i;j++){
+          if (this.ProjectExperienceData[j].start_time < this.ProjectExperienceData[j+1].start_time) {
+            var temp = this.ProjectExperienceData[j];
+            this.ProjectExperienceData[j] = this.ProjectExperienceData[j+1];
+            this.ProjectExperienceData[j+1] = temp;
+          }
+        }
+      }
+      this.$emit('sortData',["ProjectExperience", this.ProjectExperienceData])
+      this.$forceUpdate()
+    },
     handleClose() {
       this.$refs['projectExperienceForm'].resetFields();
     },
@@ -158,11 +178,21 @@ export default {
   height:auto;
   border-bottom: 1px rgb(168, 168, 168) solid;
 }
+.top{
+  width:auto;
+  height:50px;
+}
 .title {
   width:150px;
-  height:50px;
   line-height:50px;
   border-bottom:1px rgb(167, 164, 164) solid;
+  float: left;
+}
+.btn-box {
+  min-width: 100px;
+  height: 50px;
+  line-height:50px;
+  float: right;
 }
 .introduction_form {
   padding: 10px;

@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <el-row :gutter="20" style="margin:0;">
-      <el-col :span="12" :offset="6" style="padding-left:0;padding-right:0;">
+    <el-row :gutter="24" style="margin:0;">
+      <el-col :xl="{span:12, offset:6}" :lg="{span:18, offset:3}" :md="{span:20, offset:2}" :sm="{span:20, offset:2}" :xs="{span:24, offset:0}" style="padding-left:0;padding-right:0;">
         <Nav></Nav>
         <div class="title">
           <h4>这是一款简历助手工具，将免费提供简历编辑功能</h4>
@@ -13,6 +13,17 @@
               <el-progress type="dashboard" :percentage="item.completion_progress" :color="colors" :width="60"></el-progress>
             </div>
             <p style="font-size:12px;padding:5px 0;margin-top:10px;">{{item.update_time.substr(0,10)}}</p>
+            <!-- <div class="create">
+              <el-button type="info" icon="el-icon-edit" circle @click="edit(item.id)"></el-button>
+            </div> -->
+          </div>
+          <div class="box" v-for="(item,index) in jianli_plus_list" :key="'plus' + index" @click="edit(item.id, item.temp_id)">
+            <h5 class="jianli_name">{{item.name}}</h5>
+            <div class="jindu">
+              <el-progress type="dashboard" :percentage="item.completion_progress" :color="colors" :width="60"></el-progress>
+            </div>
+            <p style="font-size:12px;padding:5px 0;margin-top:10px;">{{item.update_time.substr(0,10)}}</p>
+            <p style="font-size:12px;padding:5px 0;margin-top:0px;color:brown">plus</p>
             <!-- <div class="create">
               <el-button type="info" icon="el-icon-edit" circle @click="edit(item.id)"></el-button>
             </div> -->
@@ -63,7 +74,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
-        <el-button size="small" type="primary" @click="edit()">开始编辑</el-button>
+        <el-button size="small" type="primary" @click="edit(undefined, true)">开始编辑</el-button>
       </div>
     </el-dialog>
   </div>
@@ -81,10 +92,11 @@ export default {
       form:{
         style_index:'-1'
       },
-      cur_src:"./static/img/style_temp/temp1.png",
+      cur_src:"/static/img/style_temp/temp1.png",
       srcList: [],
       style_list: [],
       list:"",
+      jianli_plus_list:"",
       colors: [
         {color: '#f56c6c', percentage: 20},
         {color: '#e6a23c', percentage: 40},
@@ -98,7 +110,7 @@ export default {
     handleClose(){
 
     },
-    edit(id) {
+    edit(id, temp_id=false) {
       if (this.$util.getUserName() == '') {
         Message.error({
           message: '未登录授权',
@@ -107,35 +119,67 @@ export default {
         return
       }
 
-      if (this.form.style_index == -1) {//默认模板
-        if (id == undefined) {
+      if (this.$store.state.network == false) {
+        this.$notify.error({
+          title: '错误',
+          message: '连接服务器异常,请联系管理员'
+        });
+        return
+      }
+
+      // if (this.form.style_index == -1) {//默认模板
+      //   if (id == undefined) {
+      //     this.$router.push('/resume')
+      //   } else {
+      //     this.$router.push('/resume/' + id)
+      //   }
+      // } else {
+      //   // if (id == undefined) {
+      //   //   this.$router.push('/resume_plus?type=' + this.style_list[this.form.style_index].temp_id)
+      //   // } else {
+      //   //   this.$router.push('/resume_plus/' + id + this.style_list[this.form.style_index].temp_id)
+      //   // }
+      //   if (id == undefined) {
+      //     this.$router.push({
+      //       path : '/resume_plus',
+      //       query: {
+      //         type : this.style_list[this.form.style_index].temp_id
+      //       }
+      //     })
+      //   } else {
+      //     this.$router.push({
+      //       path : '/resume_plus',
+      //       query: {
+      //         type : this.style_list[this.form.style_index].temp_id
+      //       }
+      //     })
+      //   }
+      // }
+
+      if (id == undefined) {//创建
+        if (temp_id && this.form.style_index != -1) {
+          this.$router.push({
+            path : '/resume_plus',
+            query: {
+              type : this.style_list[this.form.style_index].temp_id
+            }
+          })
+        } else {
           this.$router.push('/resume')
+        }
+      } else {//编辑
+        if (temp_id) {
+          this.$router.push({
+            path : '/resume_plus/' + id,
+            query: {
+              type : temp_id
+            }
+          })
         } else {
           this.$router.push('/resume/' + id)
         }
-      } else {
-        // if (id == undefined) {
-        //   this.$router.push('/resume_plus?type=' + this.style_list[this.form.style_index].temp_id)
-        // } else {
-        //   this.$router.push('/resume_plus/' + id + this.style_list[this.form.style_index].temp_id)
-        // }
-        if (id == undefined) {
-          this.$router.push({
-            path : '/resume_plus',
-            query: {
-              type : this.style_list[this.form.style_index].temp_id
-            }
-          })
-        } else {
-          this.$router.push({
-            path : '/resume_plus',
-            query: {
-              type : this.style_list[this.form.style_index].temp_id
-            }
-          })
-        }
       }
-      
+            
     }
   },
   // beforeCreate() {
@@ -143,6 +187,11 @@ export default {
   //   console.log(this.list)
   // },
   created() {
+    //未登录不请求
+    if (this.$util.getUserName() == "") {
+      return
+    }
+    
     var that = this;
     // 发送axios请求
     this.axios({
@@ -159,19 +208,42 @@ export default {
       }
     });
 
+    this.axios({
+      method: 'post',
+      url: this.$util.requestDomain+'/jianli_plus_list'
+    }).then(function(response) {
+      if (response.data.code == 0) {
+        that.jianli_plus_list = response.data.data;
+      } else {
+        // Message.error({
+        //   message: response.data.msg,
+        //   duration: 1000
+        // });
+      }
+    });
+
+    //默认模板
+    that.srcList.push('/static/img/style_temp/temp1.png')
+
     //获取简历模板
     this.axios({
       method: 'post',
       url: this.$util.requestDomain+'/jianli_template_list'
     }).then(function(response) {
-      if (response.data.code == 0) {
+      if (response.data.code == 0 && response.data.data != null) {
+        var imgSrc
         for(let i=0;i<response.data.data.length;i++){
+          if (response.data.data[i].img != "") {
+            imgSrc = that.$util.requestDomain + '/image/' + response.data.data[i].img + '.png'
+          } else {
+            imgSrc = ""
+          } 
           that.style_list.push({
             temp_id: response.data.data[i].temp_id,
             title: response.data.data[i].name,
-            src:"./static/img/style_temp/temp" + (i+1) + ".png"
+            src: imgSrc
           });
-          that.srcList.push("./static/img/style_temp/temp" + (i+1) + ".png")
+          that.srcList.push(imgSrc)
         }
       } else {
         // Message.error({

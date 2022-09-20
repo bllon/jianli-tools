@@ -1,7 +1,7 @@
 <template>
   <div class="edit">
-    <el-row :gutter="20" style="margin:0;">
-      <el-col :span="12" :offset="6" style="padding-left:0;padding-right:0;">
+    <el-row :gutter="24" style="margin:0;">
+      <el-col :xl="{span:12, offset:6}" :lg="{span:18, offset:3}" :md="{span:20, offset:2}" :sm="{span:20, offset:2}" :xs="{span:24, offset:0}" style="padding-left:0;padding-right:0;">
         <Nav></Nav>
         <div class="title">
           <h4>更新日志</h4>
@@ -122,6 +122,13 @@ export default {
         {
           content: '基本支持自定义简历模板生成，有部分问题待解决（1.表格的位置不齐，方法：通过自己设计一个工整的表单解析xml。2.自定义表格单元格的宽度 3.标题统一图标，以及文字对齐 4.富文本独占一行表格）',
           timestamp: '2022-04-02',
+          size: 'large',
+          type: 'primary',
+          icon: 'el-icon-success'
+        },
+        {
+          content: '解决超级简历导出样式问题',
+          timestamp: '2022-07-07',
           size: 'large',
           type: 'primary',
           icon: 'el-icon-success'

@@ -1,25 +1,26 @@
 <template>
   <div class="edit">
-    <el-row :gutter="20" style="margin:0;">
-      <el-col :span="12" :offset="6" style="padding-left:0;padding-right:0;">
+    <el-row :gutter="24" style="margin:0;">
+      <el-col :xl="{span:12, offset:5}" :lg="{span:12, offset:4}" :md="{span:15, offset:1}" :sm="{span:20, offset:2}" :xs="{span:24, offset:0}" style="padding-left:0;padding-right:0;">
         <div class="title">
-          <h4>简历助手工具</h4>
+          <h4>简历助手工具 plus</h4>
         </div>
         <div class="content">
           <!-- 动态加载简历组件模块 -->
-          <ModuleEdit v-for="(app,index) in modules" :key="index" v-show="app.show" v-bind:refName="app.ref" v-bind="app.data"></ModuleEdit>
+          <ModuleEdit @saveListData="saveListData" v-for="(app,index) in modules" :key="index" v-show="app.show" v-bind:refName="app.ref" v-bind="app.data"></ModuleEdit>
         </div>
       </el-col>
-      <el-col :span="5" :offset="1" style="padding-left:0;padding-right:0;position:relation;">
+      <el-col :xl="{span:5, offset:1}" :lg="{span:5, offset:1}" :md="{span:5, offset:1}" :sm="{span:20, offset:2}" :xs="{span:24, offset:0}" style="padding-left:0;padding-right:0;position:relation;">
         <div class="oprate-box">
           <el-progress type="dashboard" :percentage="completion_progress" :color="progress_colors" :width="60"></el-progress>
+          <el-input v-model="name" placeholder="简历名称"></el-input>
           <div class="module_list">
             <div class="module" v-for="(app,index) in modules" :key="index" draggable="true"
             @dragstart="handleDragStart($event, index)"
            @dragover.prevent="handleDragOver($event, index)"
            @dragenter="handleDragEnter($event, index)"
            @dragend="handleDragEnd($event, index)">
-              <el-checkbox v-model="app.show"></el-checkbox><span class="module_name">{{app.data.ModuleData.module_name}}</span>
+              <el-checkbox v-model="app.show" :disabled="index == 0"></el-checkbox><span class="module_name">{{app.data.ModuleData.module_name}}</span>
               <!-- <div class="mengceng"></div> -->
             </div>
           </div>
@@ -88,9 +89,11 @@ export default {
   name: 'JianLiPlusEdit',
   data() {
     return {
-      id:this.$route.query.id,
+      id:this.$route.params.id,
       temp_id:this.$route.query.type,
       completion_progress:0,//完成进度
+      name:"",
+      loading:null,
       progress_colors: [//进度颜色
         {color: '#f56c6c', percentage: 20},
         {color: '#e6a23c', percentage: 40},
@@ -115,39 +118,9 @@ export default {
       dragging:null,
       ending:null,
       dialogFormVisible:false,
-      srcList: [
-        "./static/img/style_temp/temp1.png",
-        "./static/img/style_temp/temp2.png",
-        "./static/img/style_temp/temp3.png",
-      ],
-      style_list: [
-        {
-          color:"7BA1AF",
-          src:"./static/img/style_temp/temp1.png"
-        },
-        {
-          color:"F4B183",
-          src:"./static/img/style_temp/temp2.png"
-        },
-        {
-          color:"DBB8B8",
-          src:"./static/img/style_temp/temp3.png"
-        },
-      ],
-      modules:[
-        {
-          ref:"module1",
-          editVisible:false,
-          removeVisible:false,
-          type:0,
-          data:{ModuleData:{
-              module_name : "基本信息",
-              type:0,
-              form:[]
-            }
-          }
-        }
-      ],
+      srcList: [],
+      style_list: [],
+      modules:[],
     }
   },
   methods: {
@@ -155,10 +128,9 @@ export default {
       this.dragging = index
     },
     handleDragEnd (e, index) {
-      var module_list = ["BaseInfo","PersonalIntroduction","JobIntension"];
       if (this.ending === this.dragging
-      || module_list.indexOf(this.modules[this.dragging].module) > -1
-      || module_list.indexOf(this.modules[this.ending].module) > -1) {
+      || this.ending == 0
+      || this.dragging == 0) {
         return
       }
       //交换位置
@@ -184,6 +156,19 @@ export default {
     handleClose() {
       this.$refs['exportForm'].resetFields();
     },
+    saveListData(param) {
+      var list = param[0];
+      var module_name = param[1];
+      for (var i=0;i<this.modules.length;i++) {
+        if (this.modules[i].data.ModuleData.list_data == null) {
+          this.modules[i].data.ModuleData.list_data = [];
+        }
+        if (this.modules[i].data.ModuleData.module_name == module_name) {
+          this.modules[i].data.ModuleData.list_data = list;
+          break;
+        }
+      }
+    },
     beforeDel() {
       this.$confirm('将删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -200,7 +185,7 @@ export default {
       var that = this;
       this.axios({
         method: 'post',
-        url: this.$util.requestDomain+'/del_jianli',
+        url: this.$util.requestDomain+'/del_jianli_plus',
         data: {id: parseInt(that.id)}
       }).then(function(response) {
         if (response.data.code == 0) {
@@ -224,9 +209,15 @@ export default {
         type: 'info',
         lockScroll: false
       }).then(() => {
+        this.loading = this.$loading({
+          lock: true,
+          text: '导出中, 请等候...',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
         this.export()
       }).catch(() => {
-        console.log("取消了导出")
+        // console.log("取消了导出")
       });
     },
     export() {
@@ -241,8 +232,8 @@ export default {
       this.axios({
         method: 'post',
         responseType: 'blob',
-        url: this.$util.requestDomain+'/export_jianli',
-        data: {id: parseInt(that.id), color: color}
+        url: this.$util.requestDomain+'/export_jianli_plus',
+        data: {id: parseInt(that.id), color: color, file_type: this.exportForm.file_type}
       }).then(function(response) {
         if (response.status == 200) {
           let reader = new FileReader(); // 创建读取文件对象
@@ -251,6 +242,10 @@ export default {
             try {
               let res = JSON.parse(reader.result); // 返回的数据
               if (res.code) {//是json
+                if (that.loading != null) {
+                  that.loading.close();
+                  that.loading = null;
+                }
                 Message.error({
                   message: res.msg,
                   duration: 1000
@@ -258,32 +253,38 @@ export default {
                 return
               }
             } catch(err) {//是文件
+              if (that.loading != null) {
+                that.loading.close();
+                that.loading = null;
+              }
               Message.success({
                 message: '导出成功',
                 duration: 1000
               });
+              var contentType
+              if (that.exportForm.file_type == 'pdf') {
+                contentType = `application/pdf`
+              } else {
+                contentType = `application/msword`
+              }
               let url = window.URL.createObjectURL(new Blob([response.data], {
-                type: `application/msword` //word文档为msword,pdf文档为pdf
+                type: contentType //word文档为msword,pdf文档为pdf
               }));
               let link= document.createElement('a');
               link.style.display='none';
               link.href=url;
 
-              let jianli_name = "我的简历";
-              for(var i=0;i<that.modules.length;i++){
-                switch(that.modules[i].module){
-                  case "BaseInfo":
-                    jianli_name = that.modules[i].data.BaseInfoData.jianli_name;
-                    break;
-                }
-              }
-
+              let jianli_name = that.name;
               link.setAttribute('download', jianli_name);
               document.body.appendChild(link);
               link.click();
             }
           });
         } else {
+          if (that.loading != null) {
+            that.loading.close();
+            that.loading = null;
+          }
           Message.error({
             message: '操作失败',
             duration: 1000
@@ -293,16 +294,6 @@ export default {
     },
     beforeSave() {
       //校验各个表单
-      var flag = this.$refs['baseInfo'][0].handleSubmit();
-
-      if (!flag) {
-        this.$alert('未填写必填项', '提示', {
-          type: 'warning',
-          showConfirmButton: '确定',
-          lockScroll: false
-        })
-        return
-      }
 
       this.$confirm('将修改信息保存, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -319,50 +310,27 @@ export default {
       var saveData = {}
       var module_config = []
       for(var i=0;i<this.modules.length;i++){
-
         module_config.push({
-          label: this.modules[i].label,
-          module:this.modules[i].module,
+          label: this.modules[i].data.ModuleData.module_name,
+          module:this.modules[i].ref,
           ref:this.modules[i].ref,
           show:this.modules[i].show,
-          draggable:this.modules[i].draggable
+          draggable:true
         })
-
-        switch(this.modules[i].module){
-          case "BaseInfo":
-            saveData.base_info = this.modules[i].data.BaseInfoData;
-            break;
-          case "PersonalIntroduction":
-            saveData.personal_introduction = this.modules[i].data.PersonalIntroductionData;
-            break;
-          case "JobIntension":
-            saveData.job_intension = this.modules[i].data.JobIntensionData;
-            break;
-          case "RelatedSkills":
-            saveData.related_skills = this.modules[i].data.RelatedSkillsData;
-            break;
-          case "EducationExperience":
-            saveData.education_experience = this.modules[i].data.EducationExperienceData;
-            break;
-          case "WorkExperience":
-            saveData.work_experience = this.modules[i].data.WorkExperienceData;
-            break;
-          case "ProjectExperience":
-            saveData.project_experience = this.modules[i].data.ProjectExperienceData;
-            break;
-          case "PersonalSummary":
-            saveData.personal_summary = this.modules[i].data.PersonalSummaryData;
-            break;
-        }
       }
+
+      saveData.temp_id = parseInt(this.temp_id);
+      saveData.name = this.name;
+      saveData.modules = this.modules;
       saveData.module_config = module_config;
+
       var that = this;
 
       if (this.id == undefined) {
         // 发送axios请求
         this.axios({
           method: 'post',
-          url: this.$util.requestDomain+'/save_jianli',
+          url: this.$util.requestDomain+'/save_jianli_plus',
           data: saveData
         }).then(function(response) {
           if (response.data.code == 0) {
@@ -372,7 +340,12 @@ export default {
             });
             that.id = response.data.data.last_id
             that.completion_progress = response.data.data.completion_progress
-            that.$router.push('/resume/'+response.data.data.last_id);
+            that.$router.push({
+              path : '/resume_plus/' + response.data.data.last_id,
+              query: {
+                type : that.temp_id
+              }
+            })
           } else {
             Message.error({
               message: response.data.msg,
@@ -385,15 +358,15 @@ export default {
         // 发送axios请求
         this.axios({
           method: 'post',
-          url: this.$util.requestDomain+'/update_jianli',
+          url: this.$util.requestDomain+'/update_jianli_plus',
           data: saveData
         }).then(function(response) {
           if (response.data.code == 0) {
-            that.completion_progress = response.data.data.completion_progress
             Message.success({
               message: '保存成功',
               duration: 1000
             });
+            that.completion_progress = response.data.data.completion_progress
           } else {
             Message.error({
               message: response.data.msg,
@@ -414,10 +387,22 @@ export default {
         url: this.$util.requestDomain+'/jianli_template_detail',
         data: {temp_id: parseInt(that.temp_id)}
       }).then(function(response) {
+        console.log(response.data)
         if (response.data.code == 0) {
           var data = response.data.data;
-          that.name = data.name
           that.modules = data.modules
+          var imgSrc
+          if (response.data.data.img != "") {
+            imgSrc = that.$util.requestDomain + '/image/' + response.data.data[i].img + '.png'
+          } else {
+            imgSrc = ""
+          } 
+          that.style_list.push({
+            color:"7BA1AF",
+            src: imgSrc
+          });
+          that.srcList.push(imgSrc)
+
         } else {
           Message.error({
             message: response.data.msg,
@@ -425,48 +410,50 @@ export default {
           });
         }
       });
-      return;
     } else {
       //查询
       var that = this;
       // 发送axios请求
       this.axios({
         method: 'post',
-        url: this.$util.requestDomain+'/jianli_detail',
+        url: this.$util.requestDomain+'/jianli_template_detail',
+        data: {temp_id: parseInt(that.temp_id)}
+      }).then(function(response) {
+        if (response.data.code == 0) {
+          var data = response.data.data;
+          var imgSrc
+          if (data.img != "") {
+            imgSrc = that.$util.requestDomain + '/image/' + data.img + '.png'
+          } else {
+            imgSrc = ""
+          } 
+          that.style_list.push({
+            color:"7BA1AF",
+            src: imgSrc
+          });
+          that.srcList.push(imgSrc)
+
+        } else {
+          Message.error({
+            message: response.data.msg,
+            duration: 1000
+          });
+        }
+      });
+
+      //查询
+      var that = this;
+      // 发送axios请求
+      this.axios({
+        method: 'post',
+        url: this.$util.requestDomain+'/jianli_plus_detail',
         data: {id: parseInt(that.id)}
       }).then(function(response) {
         if (response.data.code == 0) {
           var data = response.data.data;
-          for(var i=0;i<data.module_config.length;i++){
-            data.module_config[i].data = {}
-            switch(data.module_config[i].module){
-              case "BaseInfo":
-                data.module_config[i].data.BaseInfoData = data.base_info;
-                break;
-              case "PersonalIntroduction":
-                data.module_config[i].data.PersonalIntroductionData = data.personal_introduction;
-                break;
-              case "JobIntension":
-                data.module_config[i].data.JobIntensionData = data.job_intension;
-                break;
-              case "RelatedSkills":
-                data.module_config[i].data.RelatedSkillsData = data.related_skills;
-                break;
-              case "EducationExperience":
-                data.module_config[i].data.EducationExperienceData = data.education_experience ? data.education_experience : [];
-                break;
-              case "WorkExperience":
-                data.module_config[i].data.WorkExperienceData = data.work_experience ? data.work_experience : [];
-                break;
-              case "ProjectExperience":
-                data.module_config[i].data.ProjectExperienceData = data.project_experience ? data.project_experience : [];
-                break;
-              case "PersonalSummary":
-                data.module_config[i].data.PersonalSummaryData = data.personal_summary ? data.personal_summary : {};
-                break;
-            }
-          }
-          that.modules = data.module_config;
+          that.name = data.name
+          that.module_config = data.module_config
+          that.modules = data.modules
           that.completion_progress = data.completion_progress
         } else {
           Message.error({
@@ -486,7 +473,7 @@ export default {
 .edit {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 .el-row {
   height: 100%;
@@ -520,12 +507,11 @@ export default {
 }
 
 .oprate-box{
-  width:auto;
+  max-width:326px;
   height:500px;
-  margin-top:100px;
+  margin:100px auto;
   padding:0 25px;
   border: 1px rgb(241, 237, 237) solid;
-  position:fixed;
 }
 .module_list{
   width:250px;

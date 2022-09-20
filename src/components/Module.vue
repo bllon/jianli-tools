@@ -49,7 +49,7 @@
 
       <!-- 列表模块类型 -->
       <div v-if="ModuleData.type == 1" class="list_module">
-        <el-descriptions v-for="k in [0,1]" :key="k" class="margin-top" style="margin-top:20px;" title="" :column="3" :size="size" border>
+        <el-descriptions v-for="k in [0]" :key="k" class="margin-top" style="margin-top:20px;" title="" :column="3" :size="size" border>
           <el-descriptions-item v-for="(item,index) in ModuleData.form" :key="index">
             <template slot="label">
               <i class="el-icon-edit-outline"></i>

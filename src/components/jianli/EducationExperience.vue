@@ -44,7 +44,7 @@
             </el-col>
           </el-form-item>
           <el-form-item label="所学课程" prop="course">
-            <el-input type="textarea" v-model="form.course" :rows="5" placeholder="" style="min-width:500px;"></el-input>
+            <el-input type="textarea" v-model="form.course" :rows="5" placeholder="" style="width:100%;min-width:400px;"></el-input>
           </el-form-item>
           <el-form-item label="是否统招" prop="is_unify">
             <el-select v-model="form.is_unify" placeholder="">
