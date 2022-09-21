@@ -134,7 +134,7 @@ export default {
           icon: 'el-icon-success'
         },
         {
-          content: '测试jenkins自动部署第7次',
+          content: '测试jenkins自动部署第8次',
           timestamp: '2022-09-21',
           size: 'large',
           type: 'primary',
