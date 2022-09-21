@@ -134,7 +134,7 @@ export default {
           icon: 'el-icon-success'
         },
         {
-          content: '测试jenkins自动部署第5次,把jenkins修改为root用户',
+          content: '测试jenkins自动部署第6次',
           timestamp: '2022-09-21',
           size: 'large',
           type: 'primary',
