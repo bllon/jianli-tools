@@ -151,8 +151,8 @@ var Base64 = {
 }
 
 var obj = {
-    // requestDomain:"http://43.153.1.136:8090",
-    requestDomain:"http://127.0.0.1:8090",
+    requestDomain:"http://43.153.1.136:8090",
+    // requestDomain:"http://127.0.0.1:8090",
     setCookie: (c_name,value,expire) => {
         var date=new Date()
         date.setSeconds(date.getSeconds()+expire)
